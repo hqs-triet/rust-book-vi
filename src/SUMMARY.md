@@ -44,10 +44,10 @@
     - [Bringing Paths Into Scope with the `use` Keyword](ch07-04-bringing-paths-into-scope-with-the-use-keyword.md)
     - [Separating Modules into Different Files](ch07-05-separating-modules-into-different-files.md)
 
-- [Common Collections](ch08-00-common-collections.md)
-    - [Storing Lists of Values with Vectors](ch08-01-vectors.md)
-    - [Storing UTF-8 Encoded Text with Strings](ch08-02-strings.md)
-    - [Storing Keys with Associated Values in Hash Maps](ch08-03-hash-maps.md)
+- [Những tập hợp thông dụng](ch08-00-common-collections.md)
+    - [Lưu danh sách giá trị bằng Vector](ch08-01-vectors.md)
+    - [Lưu trữ văn bản mã hóa UTF-8 bằng chuỗi](ch08-02-strings.md)
+    - [Lưu trữ khóa với giá trị liên kết trong bản đồ băm (Hash Map)](ch08-03-hash-maps.md)
 
 - [Error Handling](ch09-00-error-handling.md)
     - [Unrecoverable Errors with `panic!`](ch09-01-unrecoverable-errors-with-panic.md)
