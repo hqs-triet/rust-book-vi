@@ -1,24 +1,7 @@
-# Error Handling
+# Xử lý lỗi
 
-Errors are a fact of life in software, so Rust has a number of features for
-handling situations in which something goes wrong. In many cases, Rust requires
-you to acknowledge the possibility of an error and take some action before your
-code will compile. This requirement makes your program more robust by ensuring
-that you’ll discover errors and handle them appropriately before you’ve
-deployed your code to production!
+Lỗi là một thực tế trong vòng đời phần mềm, vì vậy Rust có một số tính năng xử lý các tình huống khi xảy ra sự cố. Trong nhiều trường hợp, Rust yêu cầu bạn phải biết khả năng xảy ra lỗi và thực hiện một số hành động xử lý trước khi mã của bạn được biên dịch. Yêu cầu này làm cho chương trình của bạn trở nên mạnh mẽ hơn bằng cách đảm bảo rằng bạn sẽ phát hiện ra lỗi và xử lý chúng một cách thích hợp trước khi triển khai đoạn mã của mình vào sản phẩm chính thức!
 
-Rust groups errors into two major categories: *recoverable* and *unrecoverable*
-errors. For a recoverable error, such as a *file not found* error, we most
-likely just want to report the problem to the user and retry the operation.
-Unrecoverable errors are always symptoms of bugs, like trying to access a
-location beyond the end of an array, and so we want to immediately stop the
-program.
+Rust nhóm các lỗi thành hai loại chính: lỗi *có thể khôi phục* và *không thể khôi phục*. Đối với lỗi có thể khôi phục, chẳng hạn như lỗi *file not found*, rất có thể chúng ta chỉ muốn báo cáo sự cố này cho người dùng và thử lại thao tác. Các lỗi không thể khôi phục luôn là biểu hiện của lỗi (bug) chương trình, ví dụ như cố gắng truy cập vào một vị trí nằm ngoài phạm vi của một mảng, và vì vậy chúng ta muốn dừng chương trình ngay lập tức.
 
-Most languages don’t distinguish between these two kinds of errors and handle
-both in the same way, using mechanisms such as exceptions. Rust doesn’t have
-exceptions. Instead, it has the type `Result<T, E>` for recoverable errors and
-the `panic!` macro that stops execution when the program encounters an
-unrecoverable error. This chapter covers calling `panic!` first and then talks
-about returning `Result<T, E>` values. Additionally, we’ll explore
-considerations when deciding whether to try to recover from an error or to stop
-execution.
+Hầu hết các ngôn ngữ không phân biệt hai loại lỗi này và xử lý cả hai theo cùng một cách, sử dụng các cơ chế gọi là những ngoại lệ (exception). Rust không có những ngoại lệ kiểu này. Thay vào đó, nó có kiểu `Result<T,E>` cho các lỗi có thể khôi phục và macro `panic!` để dừng việc thực thi khi chương trình gặp lỗi không thể khôi phục. Chương này bao gồm: gọi `panic!` trước và sau đó nói tới việc trả về các giá trị `Result<T, E>`. Ngoài ra, chúng ta sẽ xem xét những cân nhắc khi quyết định nên cố gắng khôi phục lỗi xảy ra hay ngừng việc thực thi lại.
