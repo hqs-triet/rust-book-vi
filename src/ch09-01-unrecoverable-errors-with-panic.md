@@ -1,35 +1,35 @@
-## Unrecoverable Errors with `panic!`
+## Lỗi không thể khôi phục với `panic!`
 
-Sometimes, bad things happen in your code, and there’s nothing you can do about
-it. In these cases, Rust has the `panic!` macro. There are two ways to cause a
-panic in practice: by taking an action that causes our code to panic (such as
-accessing an array past the end) or by explicitly calling the `panic!` macro.
-In both cases, we cause a panic in our program. By default, these panics will
-print a failure message, unwind, clean up the stack, and quit. Via an
-environment variable, you can also have Rust display the call stack when a
-panic occurs to make it easier to track down the source of the panic.
+Đôi khi, những điều tồi tệ xảy ra trong mã của bạn và bạn không thể làm gì với nó.
+Trong những trường hợp này, Rust có macro `panic!`. Có hai cách để gây ra lỗi trong
+thực tế: bằng cách thực hiện một hành động khiến mã của chúng ta bị lỗi (chẳng hạn như
+truy cập vào một vị trí ngoài mảng) hoặc bằng cách gọi chỉ định rõ ràng macro `panic!`.
+Trong cả hai trường hợp, chúng ta gây ra lỗi trong chương trình. Theo mặc định, những lỗi này sẽ
+in một thông báo lỗi, giải phóng những thứ đã tạo (unwind), dọn dẹp ngăn xếp (stack)
+và thoát chương trình. Thông qua một biến môi trường, bạn cũng có thể để Rust hiển thị
+ngăn xếp của những lời gọi thực thi khi xảy ra lỗi để dễ dàng tìm ra nguồn gốc của lỗi này.
 
-> ### Unwinding the Stack or Aborting in Response to a Panic
+> ### Giải phóng (unwind) stack hoặc hủy bỏ (abort) chương trình khi lỗi xảy ra
 >
-> By default, when a panic occurs, the program starts *unwinding*, which
-> means Rust walks back up the stack and cleans up the data from each function
-> it encounters. However, this walking back and cleanup is a lot of work. Rust,
-> therefore, allows you to choose the alternative of immediately *aborting*,
-> which ends the program without cleaning up.
+> Theo mặc định, khi xảy ra lỗi, chương trình sẽ bắt đầu *unwinding*, có nghĩa là
+> Rust sẽ đi ngược lại các thông tin ngăn xếp và dọn dẹp dữ liệu của mỗi chức năng
+> mà nó gặp. Tuy nhiên, việc di chuyển và dọn dẹp này tốn rất nhiều công việc.
+> Do đó, Rust cho phép bạn chọn giải pháp thay thế là ngay lập tức *aborting*,
+> có nghĩa là kết thúc chương trình mà không cần dọn dẹp gì hết.
 >
-> Memory that the program was using will then need to be cleaned
-> up by the operating system. If in your project you need to make the resulting
-> binary as small as possible, you can switch from unwinding to aborting upon a
-> panic by adding `panic = 'abort'` to the appropriate `[profile]` sections in
-> your *Cargo.toml* file. For example, if you want to abort on panic in release
-> mode, add this:
+> Bộ nhớ mà chương trình đã sử dụng sẽ được dọn dẹp bởi hệ điều hành.
+> Nếu trong dự án, bạn cần làm cho tập tin nhị phân kết quả càng nhỏ càng tốt,
+> bạn có thể chuyển từ loại unwind sang abort khi có lỗi xảy ra,
+> bằng cách thêm `panic = 'abort'` vào phần thích hợp `[profile]` trong tập tin *Cargo.toml*.
+> Ví dụ: nếu muốn hủy bỏ chương trình (abort) với lỗi xảy ra, trong chế độ phát hành (release),
+> thêm như sau:
 >
 > ```toml
 > [profile.release]
 > panic = 'abort'
 > ```
 
-Let’s try calling `panic!` in a simple program:
+Hãy thử gọi macro `panic!` trong chương trình đơn giản này:
 
 <span class="filename">Filename: src/main.rs</span>
 
@@ -37,32 +37,29 @@ Let’s try calling `panic!` in a simple program:
 {{#rustdoc_include ../listings/ch09-error-handling/no-listing-01-panic/src/main.rs}}
 ```
 
-When you run the program, you’ll see something like this:
+Khi bạn chạy chương trình, sẽ thấy những thứ như:
 
 ```console
 {{#include ../listings/ch09-error-handling/no-listing-01-panic/output.txt}}
 ```
 
-The call to `panic!` causes the error message contained in the last two lines.
-The first line shows our panic message and the place in our source code where
-the panic occurred: *src/main.rs:2:5* indicates that it’s the second line,
-fifth character of our *src/main.rs* file.
+Lời gọi `panic!` gây ra thông báo lỗi trong hai dòng cuối cùng.
+Dòng đầu tiên hiển thị thông báo lỗi của chúng ta và vị trí trong mã nguồn nơi xảy
+ra lỗi: *src/main.rs:2:5* cho biết đó là dòng thứ hai, ký tự thứ năm của tập tin *src/main.rs*.
 
-In this case, the line indicated is part of our code, and if we go to that
-line, we see the `panic!` macro call. In other cases, the `panic!` call might
-be in code that our code calls, and the filename and line number reported by
-the error message will be someone else’s code where the `panic!` macro is
-called, not the line of our code that eventually led to the `panic!` call. We
-can use the backtrace of the functions the `panic!` call came from to figure
-out the part of our code that is causing the problem. We’ll discuss backtraces
-in more detail next.
+Trong trường hợp này, dòng được chỉ ra là một phần trong mã của chúng ta và nếu
+chúng ta đi đến dòng đó, sẽ thấy lệnh gọi macro `panic!`. Trong các trường hợp khác,
+lệnh gọi `panic!` có thể nằm bên trong mã khác mà chương trình của chúng ta gọi tới,
+và tên tệp với số dòng được thông báo lỗi sẽ là mã của người khác, đó là nơi mà macro `panic!`
+được gọi, không phải là do dòng mã của chúng ta gọi `panic!`. Chúng ta có thể sử dụng dấu vết
+của các hàm mà đã gọi `panic!`, để tìm ra phần mã nào của chúng ta đang gây ra sự cố.
+Tiếp theo, chúng ta sẽ thảo luận chi tiết hơn về các dấu vết (backtrace).
 
-### Using a `panic!` Backtrace
+### Sử dụng truy vết một `panic!`
 
-Let’s look at another example to see what it’s like when a `panic!` call comes
-from a library because of a bug in our code instead of from our code calling
-the macro directly. Listing 9-1 has some code that attempts to access an
-index in a vector beyond the range of valid indexes.
+Hãy xem xét một ví dụ khác để xem nó như thế nào khi `panic!` được gọi từ thư viện do lỗi
+chương trình (bug) trong mã của chúng ta thay vì lỗi do gọi trực tiếp macro. Mục 9-1 có một
+số mã cố gắng truy cập một chỉ mục trong một vector nằm ngoài phạm vi của các chỉ mục hợp lệ.
 
 <span class="filename">Filename: src/main.rs</span>
 
@@ -70,43 +67,39 @@ index in a vector beyond the range of valid indexes.
 {{#rustdoc_include ../listings/ch09-error-handling/listing-09-01/src/main.rs}}
 ```
 
-<span class="caption">Listing 9-1: Attempting to access an element beyond the
-end of a vector, which will cause a call to `panic!`</span>
+<span class="caption">Mục 9-1: Cố truy cập một phần tử ngoài phạm vi của một vector, và sẽ dẫn đến lời gọi `panic!`</span>
 
-Here, we’re attempting to access the 100th element of our vector (which is at
-index 99 because indexing starts at zero), but the vector has only 3 elements.
-In this situation, Rust will panic. Using `[]` is supposed to return an
-element, but if you pass an invalid index, there’s no element that Rust could
-return here that would be correct.
+Ở đây, chúng ta đang cố gắng truy cập phần tử thứ 100 của vector (tại chỉ mục
+số 99 vì chỉ mục bắt đầu từ 0), nhưng vector chỉ có 3 phần tử. Trong tình huống này,
+Rust sẽ cho ra lỗi. Sử dụng `[]` được cho là để trả về một phần tử, nhưng nếu bạn chuyển
+vào một chỉ mục không hợp lệ, thì không có phần tử hợp lệ nào mà Rust có thể trả về ở đây.
 
-In C, attempting to read beyond the end of a data structure is undefined
-behavior. You might get whatever is at the location in memory that would
-correspond to that element in the data structure, even though the memory
-doesn’t belong to that structure. This is called a *buffer overread* and can
-lead to security vulnerabilities if an attacker is able to manipulate the index
-in such a way as to read data they shouldn’t be allowed to that is stored after
-the data structure.
+Trong C, cố gắng đọc vượt quá phần cuối của cấu trúc dữ liệu là hành vi không
+xác định. Bạn có thể nhận được bất kỳ thứ gì ở vị trí trong bộ nhớ tương ứng với
+phần tử đó trong cấu trúc dữ liệu, mặc dù bộ nhớ không thuộc về cấu trúc đó.
+Đây được gọi là *ghi đè bộ đệm* và có thể dẫn đến lỗ hổng bảo mật nếu kẻ tấn công
+có thể thao túng chỉ mục, theo cái cách đọc dữ liệu mà chúng không được phép,
+được lưu trữ phía sau cấu trúc dữ liệu.
 
-To protect your program from this sort of vulnerability, if you try to read an
-element at an index that doesn’t exist, Rust will stop execution and refuse to
-continue. Let’s try it and see:
+Để bảo vệ chương trình của bạn khỏi loại lỗ hổng này, nếu bạn cố gắng đọc
+một phần tử tại một chỉ mục không tồn tại, Rust sẽ ngừng thực thi và từ chối
+việc tiếp tục. Hãy thử nó và xem như thế nào:
 
 ```console
 {{#include ../listings/ch09-error-handling/listing-09-01/output.txt}}
 ```
 
-This error points at line 4 of our `main.rs` where we attempt to access index
-99. The next note line tells us that we can set the `RUST_BACKTRACE`
-environment variable to get a backtrace of exactly what happened to cause the
-error. A *backtrace* is a list of all the functions that have been called to
-get to this point. Backtraces in Rust work as they do in other languages: the
-key to reading the backtrace is to start from the top and read until you see
-files you wrote. That’s the spot where the problem originated. The lines above
-that spot are code that your code has called; the lines below are code that
-called your code. These before-and-after lines might include core Rust code,
-standard library code, or crates that you’re using. Let’s try getting a
-backtrace by setting the `RUST_BACKTRACE` environment variable to any value
-except 0. Listing 9-2 shows output similar to what you’ll see.
+Lỗi này trỏ đến dòng 4 của `main.rs` nơi chúng ta cố gắng truy cập chỉ mục 99.
+Dòng lưu ý tiếp theo cho chúng ta biết rằng, có thể đặt biến môi trường `RUST_BACKTRACE`
+để lấy dấu vết chính xác những gì xảy ra đã gây ra lỗi. *Backtrace* là danh sách tất cả
+các hàm đã được gọi đến thời điểm này. Truy vết trong Rust hoạt động giống như các ngôn
+ngữ khác: chìa khóa để đọc dấu vết là bắt đầu từ trên cùng và đọc cho đến khi bạn nhìn
+thấy tập tin bạn đã viết. Đó là nơi khởi nguồn của vấn đề. Các dòng phía trên vị trí
+đó là mã mà đoạn mã của bạn gọi tới; các dòng bên dưới là mã đã gọi đoạn mã của bạn.
+Các dòng trước và sau có thể bao gồm mã trong lõi của Rust, mã thư viện chuẩn hoặc các
+thư viện (crate) mà bạn đang sử dụng. Hãy thử truy vết bằng cách đặt biến môi trường
+`RUST_BACKTRACE` thành bất kỳ giá trị nào ngoại trừ 0. Mục 9-2 hiển thị đầu ra tương
+tự như những gì bạn sẽ thấy.
 
 <!-- manual-regeneration
 cd listings/ch09-error-handling/listing-09-01
@@ -138,28 +131,26 @@ stack backtrace:
 note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
 ```
 
-<span class="caption">Listing 9-2: The backtrace generated by a call to
-`panic!` displayed when the environment variable `RUST_BACKTRACE` is set</span>
+<span class="caption">Mục 9-2: dấu vết được tạo ra bởi lời gọi `panic!` được hiển thị khi biến môi trường` RUST_BACKTRACE` được thiết lập</span>
 
-That’s a lot of output! The exact output you see might be different depending
-on your operating system and Rust version. In order to get backtraces with this
-information, debug symbols must be enabled. Debug symbols are enabled by
-default when using `cargo build` or `cargo run` without the `--release` flag,
-as we have here.
+Có rất nhiều thông tin đầu ra! Kết quả chính xác mà bạn thấy có thể khác nhau tùy thuộc
+vào hệ điều hành và phiên bản Rust của bạn. Để có được các dấu vết với thông tin này,
+các biểu tượng gỡ lỗi phải được bật. Các biểu tượng gỡ lỗi được bật theo mặc định
+khi sử dụng `cargo build` hoặc `cargo run` mà không có cờ `--release`,
+như chúng ta chạy ở đây.
 
-In the output in Listing 9-2, line 6 of the backtrace points to the line in our
-project that’s causing the problem: line 4 of *src/main.rs*. If we don’t want
-our program to panic, we should start our investigation at the location pointed
-to by the first line mentioning a file we wrote. In Listing 9-1, where we
-deliberately wrote code that would panic, the way to fix the panic is to not
-request an element beyond the range of the vector indexes. When your code
-panics in the future, you’ll need to figure out what action the code is taking
-with what values to cause the panic and what the code should do instead.
+Trong đầu ra của mục 9-2, dòng 6 của dấu vết trỏ đến dòng trong dự án của chúng ta
+đang gây ra sự cố: dòng 4 của *src/main.rs*. Nếu chúng ta không muốn chương trình
+của mình bị lỗi, chúng ta nên bắt đầu điều tra tại vị trí được chỉ ra bởi dòng
+đầu tiên đang đề cập đến một tệp chúng ta đã viết. Trong mục 9-1, nơi chúng ta
+cố tình viết mã có thể gây lỗi, cách để khắc phục tình trạng gây lỗi này là không
+yêu cầu một phần tử nằm ngoài phạm vi của chỉ mục vector. Khi mã của bạn bị lỗi trong
+tương lai, bạn sẽ cần tìm ra hành động mà mã đang thực hiện với những giá trị nào
+gây ra lỗi và mã nên làm gì thay thế.
 
-We’ll come back to `panic!` and when we should and should not use `panic!` to
-handle error conditions in the [“To `panic!` or Not to
-`panic!`”][to-panic-or-not-to-panic]<!-- ignore --> section later in this
-chapter. Next, we’ll look at how to recover from an error using `Result`.
+Chúng ta sẽ quay lại với `panic!`, khi nào chúng ta nên và không nên sử dụng `panic!`
+để xử lý điều kiện lỗi trong phần [`panic!` hoặc Không `panic!`”][to-panic-or-not-to-panic]<!-- ignore --> ở phần sau của chương này. Kế đến, chúng ta sẽ xem xét cách làm sao để
+khôi phục lỗi bằng cách sử dụng `Result`.
 
 [to-panic-or-not-to-panic]:
 ch09-03-to-panic-or-not-to-panic.html#to-panic-or-not-to-panic
